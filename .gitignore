@@ -1,0 +1,68 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Виртуальные окружения
+venv/
+.venv/
+env/
+ENV/
+
+# Переменные окружения и секреты
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Сборка и пакеты
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Тесты и покрытие
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+
+# Линтеры и type-checkers
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.dmypy.json
+
+# Логи
+*.log
+logs/
+
+# Локальные базы данных
+*.sqlite3
+*.db
+*.sqlite
+
+# Загруженные пользователями файлы
+uploads/
+media/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ОС
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Docker (локальные переопределения)
+docker-compose.override.yml
