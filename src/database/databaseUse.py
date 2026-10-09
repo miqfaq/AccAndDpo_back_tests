@@ -19,10 +19,6 @@ engine = create_engine(
     pool_timeout=30,
 )
 
-with engine.connect() as conn:
-    res = conn.execute(text('SELECT VERSION()'))
-    print(f"{res.all()=}")
-
 session_factory = sessionmaker(engine)
 
 class Base(DeclarativeBase):
