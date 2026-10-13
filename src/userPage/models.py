@@ -1,6 +1,6 @@
 from src.database.databaseUse import Base
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import ForeignKey, String, LargeBinary
 from typing import Optional
 
 class UserData(Base):
@@ -17,5 +17,6 @@ class UserData(Base):
     completedTests: Mapped[Optional[int]] = mapped_column(default=0, nullable=True)
     totalTests: Mapped[Optional[int]] = mapped_column(default=0, nullable=True)
     abc_test_result: Mapped[Optional[str]] = mapped_column(default=0, nullable=True)
+    photo: Mapped[bytes] = mapped_column(LargeBinary, nullable=True)
 
 
