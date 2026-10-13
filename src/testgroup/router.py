@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends
 from src.security.security import security
 from authx import TokenPayload
 from src.authorisation.login import require_role
-from src.tests.schemas import TestUpdateSchema, TestCreateSchema, QuestionCreateSchema, AnswerCreateSchema
-from src.tests.databaseWork import  get_tests, get_test_TestId, get_tests_UserId, update_test_TestId, delete_test, add_test
+from src.testgroup.schemas import TestUpdateSchema, TestCreateSchema, QuestionCreateSchema, AnswerCreateSchema
+from src.testgroup.databaseWork import  get_tests, get_test_TestId, get_tests_UserId, update_test_TestId, delete_test, add_test
 
 
 router = APIRouter(

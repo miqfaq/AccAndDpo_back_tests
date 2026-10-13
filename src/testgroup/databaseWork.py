@@ -1,5 +1,5 @@
-from src.tests.models import Tests, Questions, Answers
-from src.tests.schemas import TestUpdateSchema, TestCreateSchema, QuestionCreateSchema, AnswerCreateSchema
+from src.testgroup.models import Tests, Questions, Answers
+from src.testgroup.schemas import TestUpdateSchema, TestCreateSchema, QuestionCreateSchema, AnswerCreateSchema
 from sqlalchemy import select, update, delete
 from src.database.databaseUse import session_factory
 from typing import List

@@ -1,7 +1,8 @@
 from logging.config import fileConfig
 from src.userPage.models import UserData
 from src.authorisation.models import UserData
-from src.tests.models import Tests, Answers, Questions
+from src.testgroup.models import Tests, Answers, Questions
+from src.testEngine.models import Attempts
 from src.database.databaseUse import Base
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
