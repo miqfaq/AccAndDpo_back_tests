@@ -1,38 +1,13 @@
-from pydantic import BaseModel
+from pydantic import Field, BaseModel, ConfigDict
 import uuid
-from typing import List
 
-class AnswerPublic(BaseModel):
-    uid: uuid.UUID
-    answer_text:str
-    model_config = {"from_attributes": True}
+class AnswerSchema(BaseModel):
+    answer_text: str
+    is_true: bool = Field(default=False)
+    answer_id: uuid.UUID
 
-class QuestionPublic(BaseModel):
-    uid: uuid.UUID
+class QuestionShcema(BaseModel):
     question_text: str
-    answers: List[AnswerPublic]
-    model_config = {"from_attributes": True}
-
-class TestPublic(BaseModel):
-    uid: uuid.UUID
-    testName: str
-    description: str
-    questions: List[QuestionPublic]
-
-class UserAnswer(BaseModel):
+    answer_list: list[AnswerSchema]
     question_id: uuid.UUID
-    answer_ids: List[uuid.UUID]
-
-class SubmitTest(BaseModel):
-    answers: List[UserAnswer]
-
-class QuestionResult(BaseModel):
-    question_id: uuid.UUID
-    is_correct: bool
-    correct_answer_ids: List[uuid.UUID]
-
-class TestResult(BaseModel):
-    total: int
-    correct: int
-    percent: float
-    details: List[QuestionResult]
+    difficulty: int = Field(default=1)

@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "scale": {
+    "levels": [
+      { "min": 0,  "max": 39,  "code": "BEGINNER",     "name": "Начальный",  "description": "Знает термины, самостоятельно не работает" },
+      { "min": 40, "max": 69,  "code": "BASIC",        "name": "Базовый",    "description": "Справляется с типовыми задачами" },
+      { "min": 70, "max": 89,  "code": "CONFIDENT",    "name": "Уверенный",  "description": "Работает самостоятельно, решает нестандартное", "is_default_target": true },
+      { "min": 90, "max": 100, "code": "EXPERT",       "name": "Экспертный", "description": "Может обучать других" }
+    ],
+    "default_target": 70
+  },
+  "importance_scale": [
+    { "value": 3, "name": "Ключевое",      "description": "Ключевое умение направления" },
+    { "value": 2, "name": "Обычное",       "description": "Обычное умение направления" },
+    { "value": 1, "name": "Второстепенное","description": "Второстепенное умение направления" }
+  ],
+  "directions": [
+    { "code": "BACKEND", "name": "Backend" }
+  ],
+  "competencies": [
+    {
+      "code": "PYTHON",
+      "name": "Язык Python",
+      "direction": "BACKEND",
+      "target": 70,
+      "importance": 3,
+      "synonyms": ["python", "питон", "py"],
+      "abilitys": ["async", "syntax"],
+      "is_active": true
+    },
+    {
+      "code": "SQL",
+      "name": "Работа с реляционными БД",
+      "direction": "BACKEND",
+      "target": 70,
+      "importance": 3,
+      "synonyms": ["sql", "базы данных", "работа с базами", "postgresql", "реляционные БД"],
+      "is_active": true
+    },
+    {
+      "code": "ASYNC",
+      "name": "Асинхронное программирование",
+      "direction": "BACKEND",
+      "target": 60,
+      "importance": 2,
+      "synonyms": ["async", "asyncio", "асинхронность"],
+      "is_active": true
+    },
+    {
+      "code": "DOCKER",
+      "name": "Контейнеризация",
+      "direction": "BACKEND",
+      "target": 60,
+      "importance": 2,
+      "synonyms": ["docker", "контейнеры", "docker compose"],
+      "is_active": true
+    },
+    {
+      "code": "GIT",
+      "name": "Работа с Git",
+      "direction": "BACKEND",
+      "target": 60,
+      "importance": 1,
+      "synonyms": ["git", "гит", "контроль версий", "vcs"],
+      "is_active": true
+    }
+  ]
+}

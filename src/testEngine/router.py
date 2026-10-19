@@ -1,22 +1,13 @@
-import uuid
-from fastapi import APIRouter, HTTPException
-from src.testEngine.schemas import TestPublic, TestResult, SubmitTest
-from src.testEngine.databaseWork import get_test_for_passing, check_test
-
+from fastapi import APIRouter, Depends, HTTPException
+from src.security.security import TokenPayload, security
+from src.testEngine.databaseWork import get_direction
 
 router = APIRouter(
-    prefix='/testengine',
-    tags=['testengine']
+    prefix="/test_engine",
+    tags=['test_engine']
 )
 
-
-@router.post('/{test_uid}', response_model=TestPublic)
-def start_test(test_uid: uuid.UUID):
-    test = get_test_for_passing(test_uid)
-    if test is None:
-        raise HTTPException(404, "Test not found")
-    return test
-
-@router.post("/tests/{test_uid}/submit", response_model=TestResult)
-def submit_test(test_uid: uuid.UUID, body: SubmitTest):
-    return check_test(test_uid, body)
+@router.get("/accreditation_get_direction")
+def accreditation_get_direction(acc_id:str, payload: TokenPayload = Depends(security.access_token_required)):
+    direction = get_direction(acc_id=acc_id, user_id=payload.sub)
+    return direction

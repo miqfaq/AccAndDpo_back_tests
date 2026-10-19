@@ -23,7 +23,7 @@ def login(creds: UserLoginSchema, response: Response):
 @router.post('/register', status_code=201)
 def register(creds: UserRegisterSchema):
     if register_user(creds.login, creds.password):
-        pass
+        return "Sucess!"
     else:
         raise HTTPException(status_code=409, detail="Conflict")
 

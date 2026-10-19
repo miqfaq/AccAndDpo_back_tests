@@ -4,7 +4,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 
 
-class UserData(Base):
+class UserAuthData(Base):
     __tablename__ = 'user_auth'
     uid: Mapped[uuid.UUID] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column()

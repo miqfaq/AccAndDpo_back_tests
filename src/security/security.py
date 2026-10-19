@@ -1,4 +1,4 @@
-from authx import AuthX, AuthXConfig
+from authx import AuthX, AuthXConfig, TokenPayload
 
 config = AuthXConfig()
 config.JWT_SECRET_KEY = "SK"
