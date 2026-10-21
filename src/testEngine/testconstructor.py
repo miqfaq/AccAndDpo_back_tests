@@ -29,8 +29,10 @@ class BaseTest(ABC):
     LEVELS = 3
     SIGMA = 0.7
     NUMBER_OF_QUESTIONS = 20
-    TARGET_WEIGHT = 0.7   # вклад целевого уровня в центр теста
-    SELF_WEIGHT = 0.3     # вклад второго параметра (самооценка или прошлый результат)
+    TARGET_WEIGHT = 0.2   # вклад целевого уровня в центр теста
+    SELF_WEIGHT = 0.8     # вклад второго параметра (самооценка или прошлый результат)
+    LEVEL_WEIGHT = 0.7
+    TARGET_WEIGHT_2 = 0.3
 
     def __init__(
         self,
@@ -166,12 +168,12 @@ class FirstTest(BaseTest):
         return self._weights_from_mix(mix)
 
 class RepeatTest(BaseTest):
-    def __init__(self, session, user_id, direction, skill, target, last_score: float):
+    def __init__(self, session, user_id, direction, skill, target, level: float):
         super().__init__(session, user_id, direction, skill, target)
-        self.last_score = last_score
+        self.level = level
 
     def difficulty_weights(self) -> dict[int, float]:
-        mix = self.TARGET_WEIGHT * self.target + self.SELF_WEIGHT * self.last_score
+        mix = self.TARGET_WEIGHT_2 * self.target + self.LEVEL_WEIGHT * self.level
         return self._weights_from_mix(mix)
 
 
