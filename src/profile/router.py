@@ -18,7 +18,6 @@ def getUserInfo(uid:str):
         raise HTTPException(status_code=204, detail='No content')
     return get_user_data(uid)
     
-
 @router.patch("/updateUser")
 def update_user(userjson: UserDataOut):
     if not find_user_uid(userjson.uid):

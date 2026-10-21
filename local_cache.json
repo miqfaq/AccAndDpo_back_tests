@@ -2,20 +2,60 @@
   "version": 1,
   "scale": {
     "levels": [
-      { "min": 0,  "max": 39,  "code": "BEGINNER",     "name": "Начальный",  "description": "Знает термины, самостоятельно не работает" },
-      { "min": 40, "max": 69,  "code": "BASIC",        "name": "Базовый",    "description": "Справляется с типовыми задачами" },
-      { "min": 70, "max": 89,  "code": "CONFIDENT",    "name": "Уверенный",  "description": "Работает самостоятельно, решает нестандартное", "is_default_target": true },
-      { "min": 90, "max": 100, "code": "EXPERT",       "name": "Экспертный", "description": "Может обучать других" }
+      {
+        "min": 0,
+        "max": 39,
+        "code": "BEGINNER",
+        "name": "Начальный",
+        "description": "Знает термины, самостоятельно не работает"
+      },
+      {
+        "min": 40,
+        "max": 69,
+        "code": "BASIC",
+        "name": "Базовый",
+        "description": "Справляется с типовыми задачами"
+      },
+      {
+        "min": 70,
+        "max": 89,
+        "code": "CONFIDENT",
+        "name": "Уверенный",
+        "description": "Работает самостоятельно, решает нестандартное",
+        "is_default_target": true
+      },
+      {
+        "min": 90,
+        "max": 100,
+        "code": "EXPERT",
+        "name": "Экспертный",
+        "description": "Может обучать других"
+      }
     ],
     "default_target": 70
   },
   "importance_scale": [
-    { "value": 3, "name": "Ключевое",      "description": "Ключевое умение направления" },
-    { "value": 2, "name": "Обычное",       "description": "Обычное умение направления" },
-    { "value": 1, "name": "Второстепенное","description": "Второстепенное умение направления" }
+    {
+      "value": 3,
+      "name": "Ключевое",
+      "description": "Ключевое умение направления"
+    },
+    {
+      "value": 2,
+      "name": "Обычное",
+      "description": "Обычное умение направления"
+    },
+    {
+      "value": 1,
+      "name": "Второстепенное",
+      "description": "Второстепенное умение направления"
+    }
   ],
   "directions": [
-    { "code": "BACKEND", "name": "Backend" }
+    {
+      "code": "BACKEND",
+      "name": "Backend"
+    }
   ],
   "competencies": [
     {
@@ -24,9 +64,50 @@
       "direction": "BACKEND",
       "target": 70,
       "importance": 3,
-      "synonyms": ["python", "питон", "py"],
-      "abilitys": ["async", "syntax"],
-      "is_active": true
+      "synonyms": [
+        "python",
+        "питон",
+        "py"
+      ],
+      "is_active": true,
+      "skills": [
+        {
+          "code": "DATA_TYPES",
+          "name": "Типы данных и структуры (list, dict, set, tuple)"
+        },
+        {
+          "code": "FUNCTIONS",
+          "name": "Функции, аргументы, область видимости"
+        },
+        {
+          "code": "OOP",
+          "name": "ООП: классы, наследование, dataclass"
+        },
+        {
+          "code": "EXCEPTIONS",
+          "name": "Обработка исключений"
+        },
+        {
+          "code": "ITERATORS",
+          "name": "Итераторы, генераторы, comprehension"
+        },
+        {
+          "code": "DECORATORS",
+          "name": "Декораторы и замыкания"
+        },
+        {
+          "code": "TYPING",
+          "name": "Аннотации типов"
+        },
+        {
+          "code": "MODULES_ENV",
+          "name": "Модули, пакеты, виртуальные окружения"
+        },
+        {
+          "code": "TESTING",
+          "name": "Тестирование (pytest)"
+        }
+      ]
     },
     {
       "code": "SQL",
@@ -34,8 +115,56 @@
       "direction": "BACKEND",
       "target": 70,
       "importance": 3,
-      "synonyms": ["sql", "базы данных", "работа с базами", "postgresql", "реляционные БД"],
-      "is_active": true
+      "synonyms": [
+        "sql",
+        "базы данных",
+        "работа с базами",
+        "postgresql",
+        "реляционные БД"
+      ],
+      "is_active": true,
+      "skills": [
+        {
+          "code": "SELECT_FILTER",
+          "name": "Выборка и фильтрация (SELECT, WHERE, ORDER BY)"
+        },
+        {
+          "code": "JOINS",
+          "name": "Соединения таблиц (JOIN)"
+        },
+        {
+          "code": "AGGREGATION",
+          "name": "Агрегация и группировка (GROUP BY, HAVING)"
+        },
+        {
+          "code": "SUBQUERIES_CTE",
+          "name": "Подзапросы и CTE"
+        },
+        {
+          "code": "WINDOW_FUNCTIONS",
+          "name": "Оконные функции"
+        },
+        {
+          "code": "SCHEMA_DESIGN",
+          "name": "Проектирование схемы: DDL, ключи, ограничения"
+        },
+        {
+          "code": "NORMALIZATION",
+          "name": "Нормализация и связи между таблицами"
+        },
+        {
+          "code": "INDEXES",
+          "name": "Индексы и анализ планов запросов (EXPLAIN)"
+        },
+        {
+          "code": "TRANSACTIONS",
+          "name": "Транзакции и уровни изоляции"
+        },
+        {
+          "code": "ORM_MIGRATIONS",
+          "name": "ORM и миграции"
+        }
+      ]
     },
     {
       "code": "ASYNC",
@@ -43,8 +172,46 @@
       "direction": "BACKEND",
       "target": 60,
       "importance": 2,
-      "synonyms": ["async", "asyncio", "асинхронность"],
-      "is_active": true
+      "synonyms": [
+        "async",
+        "asyncio",
+        "асинхронность"
+      ],
+      "is_active": true,
+      "skills": [
+        {
+          "code": "CONCURRENCY_BASICS",
+          "name": "Конкурентность и параллелизм, GIL"
+        },
+        {
+          "code": "COROUTINES",
+          "name": "Корутины и async/await"
+        },
+        {
+          "code": "EVENT_LOOP",
+          "name": "Цикл событий (event loop)"
+        },
+        {
+          "code": "TASKS",
+          "name": "Задачи: create_task, gather, TaskGroup"
+        },
+        {
+          "code": "ASYNC_IO",
+          "name": "Асинхронный ввод-вывод: HTTP-клиенты и драйверы БД"
+        },
+        {
+          "code": "SYNC_PRIMITIVES",
+          "name": "Блокировки, семафоры, очереди"
+        },
+        {
+          "code": "TIMEOUTS_CANCEL",
+          "name": "Тайм-ауты и отмена задач"
+        },
+        {
+          "code": "BLOCKING_CODE",
+          "name": "Блокирующий код внутри async (run_in_executor)"
+        }
+      ]
     },
     {
       "code": "DOCKER",
@@ -52,8 +219,50 @@
       "direction": "BACKEND",
       "target": 60,
       "importance": 2,
-      "synonyms": ["docker", "контейнеры", "docker compose"],
-      "is_active": true
+      "synonyms": [
+        "docker",
+        "контейнеры",
+        "docker compose"
+      ],
+      "is_active": true,
+      "skills": [
+        {
+          "code": "IMAGES_CONTAINERS",
+          "name": "Образы и контейнеры, жизненный цикл"
+        },
+        {
+          "code": "DOCKERFILE",
+          "name": "Написание Dockerfile"
+        },
+        {
+          "code": "LAYERS_CACHE",
+          "name": "Слои, кэширование, размер образа"
+        },
+        {
+          "code": "VOLUMES",
+          "name": "Тома и хранение данных"
+        },
+        {
+          "code": "NETWORKING",
+          "name": "Сети и проброс портов"
+        },
+        {
+          "code": "COMPOSE",
+          "name": "Docker Compose"
+        },
+        {
+          "code": "ENV_SECRETS",
+          "name": "Переменные окружения и секреты"
+        },
+        {
+          "code": "REGISTRY",
+          "name": "Реестры образов, теги, версии"
+        },
+        {
+          "code": "DEBUGGING",
+          "name": "Логи и отладка контейнеров"
+        }
+      ]
     },
     {
       "code": "GIT",
@@ -61,8 +270,51 @@
       "direction": "BACKEND",
       "target": 60,
       "importance": 1,
-      "synonyms": ["git", "гит", "контроль версий", "vcs"],
-      "is_active": true
+      "synonyms": [
+        "git",
+        "гит",
+        "контроль версий",
+        "vcs"
+      ],
+      "is_active": true,
+      "skills": [
+        {
+          "code": "BASIC_COMMANDS",
+          "name": "Базовые команды (status, add, commit, diff)"
+        },
+        {
+          "code": "BRANCHING",
+          "name": "Ветки и переключение между ними"
+        },
+        {
+          "code": "MERGE_REBASE",
+          "name": "Слияние и rebase"
+        },
+        {
+          "code": "CONFLICTS",
+          "name": "Разрешение конфликтов"
+        },
+        {
+          "code": "REMOTES",
+          "name": "Удалённые репозитории (clone, fetch, pull, push)"
+        },
+        {
+          "code": "HISTORY_UNDO",
+          "name": "История и отмена изменений (log, reset, revert, restore)"
+        },
+        {
+          "code": "STASH_PICK",
+          "name": "Stash и cherry-pick"
+        },
+        {
+          "code": "GITIGNORE",
+          "name": "Исключение файлов (.gitignore)"
+        },
+        {
+          "code": "WORKFLOWS",
+          "name": "Командные процессы: pull request, ревью, ветвление"
+        }
+      ]
     }
   ]
 }

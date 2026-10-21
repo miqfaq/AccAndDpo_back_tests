@@ -15,3 +15,4 @@ class UserRole():
     admin = 'admin'
     user = 'user'
     guest = 'guest'
+    manager = 'manager'
