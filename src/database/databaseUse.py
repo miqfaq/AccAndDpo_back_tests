@@ -1,17 +1,12 @@
 from sqlmodel import create_engine, Session, text
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
+from src.security.security import settings
 
-DATABASE_USERNAME = "postgres"
-PASSWORD = "12345"
-DATABASE_HOST = "127.0.0.1"
-DATABASE_PORT = "5432"
-DATABASE_NAME = "AccAndDpo_test_back"
 
-DATABASE_URL = f"postgresql+psycopg://{DATABASE_USERNAME}:{PASSWORD}@{DATABASE_HOST}:{DATABASE_PORT}/{DATABASE_NAME}"
 
 # Create the database engine
 engine = create_engine(
-    url=DATABASE_URL,
+    url=settings.DATABASE_URL,
     echo=True, # Set to False in production
     pool_pre_ping=True,
     pool_size=20,

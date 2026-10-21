@@ -2,6 +2,7 @@ from logging.config import fileConfig
 from src.profile.models import UserData, Accreditation
 from src.authorisation.models import UserAuthData
 from src.database.databaseUse import Base
+from src.testEngine.models import Question, Answer
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 

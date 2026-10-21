@@ -80,7 +80,6 @@ def add_accreditation(accreditation_input:AccreditationInput, uid:str):
             user_id = uid,
             direction = accreditation_input.direction,
             skill = accreditation_input.skill,
-            ability = accreditation_input.ability,
             target = accreditation_input.target,
             self_rating = accreditation_input.self_rating
             )

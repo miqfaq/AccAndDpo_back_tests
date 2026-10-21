@@ -1,5 +1,6 @@
 from pydantic import Field, BaseModel, ConfigDict
 import uuid
+from enum import StrEnum
 
 class AnswerSchema(BaseModel):
     answer_text: str
@@ -11,3 +12,13 @@ class QuestionShcema(BaseModel):
     answer_list: list[AnswerSchema]
     question_id: uuid.UUID
     difficulty: int = Field(default=1)
+    direction: str
+
+class Direction(StrEnum):
+    backend = "BACKEND"
+    frontend = "FRONTEND"
+    sql = "SQL"
+    default = "default"
+    
+
+    

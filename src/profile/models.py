@@ -29,10 +29,12 @@ class Accreditation(Base):
                 )
     direction: Mapped[str] = mapped_column()
     skill: Mapped[str] = mapped_column()
-    ability: Mapped[str] = mapped_column()
     target: Mapped[int] = mapped_column()
     self_rating: Mapped[int] = mapped_column(default=1)
     rating: Mapped[int] = mapped_column(default=1)
+    abilitys: Mapped[list["Ability"]] = relationship(
+        cascade="all, delete-orphan"
+    )
     user: Mapped["UserData"] = relationship(
         back_populates="accreditations"
     )
@@ -42,5 +44,13 @@ class Accreditation(Base):
         CheckConstraint("rating >= 1 and rating <= 100", name="checkrating")
     )
     
+class Ability(Base):
+    __tablename__='ability'
+    uid: Mapped[uuid.UUID] = mapped_column( primary_key=True, default=uuid.uuid4)
+    accreditation_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("accreditation_session.uid", ondelete="CASCADE"),
+        index=True
+    )
+    name: Mapped[str] = mapped_column()
 
 
