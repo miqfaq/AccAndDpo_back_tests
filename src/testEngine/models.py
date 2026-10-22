@@ -43,22 +43,19 @@ class Attempt(Base):
 
     attempt_id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("User_info.uid", ondelete="CASCADE"))
-    session_id: Mapped[uuid.UUID | None] = mapped_column(
-        ForeignKey("accreditation_session.uid", ondelete="SET NULL")
-    )
+    accreditation_id: Mapped[uuid.UUID | None] = mapped_column()
 
     # Параметры, с которыми собирался тест
     direction: Mapped[str] = mapped_column()
     skill: Mapped[str] = mapped_column()
-    target: Mapped[int] = mapped_column()          # max выбранного уровня
+    target: Mapped[int] = mapped_column()          
     self_rating: Mapped[int] = mapped_column()
 
-    status: Mapped[str] = mapped_column(String(20), default=AttemptStatus.in_progress)
     started_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    score: Mapped[float | None] = mapped_column()   # итог 0..100, считается при завершении
+    score: Mapped[float | None] = mapped_column()
 
     questions: Mapped[list["AttemptQuestion"]] = relationship(
         back_populates="attempt",
@@ -73,7 +70,7 @@ class AttemptQuestion(Base):
     __table_args__ = (
         UniqueConstraint("attempt_id", "position", name="uq_attempt_question_position"),
         Index("ix_attempt_questions_question_id", "question_id"),
-        CheckConstraint("difficulty BETWEEN 1 AND 5", name="ck_attempt_questions_difficulty"),
+        CheckConstraint("difficulty BETWEEN 1 AND 3", name="ck_attempt_questions_difficulty"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
@@ -110,6 +107,9 @@ class AttemptAnswer(Base):
     )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    attempt_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey('attempts.attempt_id', ondelete="CASCADE")
+    )
     attempt_question_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("attempt_questions.id", ondelete="CASCADE")
     )

@@ -1,9 +1,10 @@
-from pydantic import Field, BaseModel, BeforeValidator, WithJsonSchema
+from pydantic import Field, BaseModel, BeforeValidator, WithJsonSchema, ConfigDict, field_validator, model_validator
 from typing import Annotated
-from src.profile.schemas import KeyByDirections, KeyByCompetencies
+from src.profile.schemas import KeyByDirections, KeyByCompetencies, TargetByLevel
 import uuid
 import json
 from enum import StrEnum
+from datetime import datetime
 
 CONFIG_PATH = "local_cache.json"
 
@@ -48,6 +49,31 @@ class QuestionShcema(BaseModel):
     skill: KeyByCompetencies
     ability: KeyBySkill
 
+class AnswerPublicShcema(BaseModel):
+    answer_text: str
+    answer_id: uuid.UUID
+    is_selected: bool
+
+class QuestionPublicSchema(BaseModel):
+    question_text: str
+    answers: list[AnswerPublicShcema]
+    position: int
+    question_id: uuid.UUID
+    difficulty: int = Field(default=1)
+    direction: KeyByDirections
+    skill: KeyByCompetencies
+    ability: KeyBySkill
+
+class AttemptSchema(BaseModel):
+    attempt_id: str
+    questions: list[QuestionPublicSchema]
+    time_end: datetime
+    direction: KeyByDirections
+    skill: KeyByCompetencies
+    target: TargetByLevel
+    self_rating: int
+
+
 class GetTestSchema(BaseModel):
     user_id: uuid.UUID
     acc_id: uuid.UUID
@@ -57,6 +83,8 @@ class Direction(StrEnum):
     frontend = "FRONTEND"
     sql = "SQL"
     default = "default"
+
+
     
 
     

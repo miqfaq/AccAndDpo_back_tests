@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from src.security.security import TokenPayload, security
-from src.testEngine.databaseWork import get_direction, getTest, addQuestion
-from src.testEngine.schemas import QuestionShcema
+from src.testEngine.databaseWork import get_direction, getTest, addQuestion, getAccList_uid, save_attempt, score_count
+from src.testEngine.schemas import QuestionShcema, AttemptSchema
 from src.authorisation.login import require_role
 import uuid
 
@@ -23,3 +23,13 @@ def get_test(accId, payload: TokenPayload = Depends(security.access_token_requir
 def add_question(question_list: list[QuestionShcema], payload: TokenPayload=Depends(require_role("manager", "admin"))):
     for question in question_list:
         addQuestion(question=question)
+
+@router.get("/getAcclist")
+def get_acc_list(payload: TokenPayload = Depends(security.access_token_required)):
+    return getAccList_uid(uid=uuid.UUID(payload.sub))
+
+@router.post("/submitattempt")
+def submitAttempt(attempt: AttemptSchema, accreditation_id, payload: TokenPayload = Depends(security.access_token_required)):
+    save_attempt(attempt=attempt, user_id=uuid.UUID(payload.sub), accreditation_id=accreditation_id)
+    score_count(user_id=uuid.UUID(payload.sub), acc_id=accreditation_id)
+    
