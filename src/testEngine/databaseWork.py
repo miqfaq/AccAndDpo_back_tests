@@ -2,10 +2,12 @@ from src.database.databaseUse import session_factory
 from src.profile.models import Accreditation
 from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
-from src.testEngine.schemas import Direction, QuestionShcema, AttemptSchema
+from src.testEngine.schemas import Direction, QuestionShcema, AttemptSchema, KeyByCompetencies
 from src.testEngine.models import Question, Answer, Attempt, AttemptQuestion, AttemptAnswer
 from src.testEngine.testconstructor import FirstTest, RepeatTest
+from datetime import datetime, timezone
 import uuid
+
 
 def get_direction(acc_id, user_id) -> str:
     with session_factory() as session:
@@ -55,7 +57,7 @@ def addQuestion(question: QuestionShcema):
             skill = question.skill,
             ability = question.ability,
             answers = [
-                Answer(answer_text = answer.answer_text.strip())
+                Answer(answer_text = answer.answer_text.strip(), is_true = answer.is_true)
                 for answer in question.answer_list
             ],
         ))
@@ -186,25 +188,65 @@ def score_count(user_id, acc_id):
         questions = session.scalars(
             select(AttemptQuestion)
             .where(AttemptQuestion.attempt_id == attempt_id)
-            ).all() 
-        weigths_summ = 0
-        all_weights_summ = 0
-        for question in questions:
-            answer = session.scalars(
-                select(AttemptAnswer)
-                .where(AttemptAnswer.attempt_question_id == question.id,
-                       AttemptAnswer.attempt_id == attempt_id)
-                .limit(1)
-            ).first()
-            if answer is not None:
-                if answer.is_selected == True & answer.is_true == True:
-                    weigths_summ += question.difficulty
-                all_weights_summ += question.difficulty
-        score = round(100*weigths_summ/all_weights_summ, 2)
+        ).all()
+
+        # id вопросов, на которые дан правильный ответ
+        correct_ids = set(session.scalars(
+            select(AttemptAnswer.attempt_question_id)
+            .where(AttemptAnswer.attempt_id == attempt_id,
+                   AttemptAnswer.is_selected == True,
+                   AttemptAnswer.is_true == True)
+        ).all())
+
+        weights_sum = sum(q.difficulty for q in questions if q.id in correct_ids)
+        all_weights_sum = sum(q.difficulty for q in questions)
+
+        score = round(100 * weights_sum / all_weights_sum, 2) if all_weights_sum else 0
         session.execute(
             update(Attempt)
-            .where(Attempt.attempt_id==attempt_id)
-            .values(score = score)
+            .where(Attempt.attempt_id == attempt_id)
+            .values(score=score)
         )
         session.commit()
     return score
+
+def rating_count(user_id, skill):
+    with session_factory() as session:
+        print(skill)
+        acc_id = session.scalars(
+            select(Accreditation.uid)
+            .where(Accreditation.user_id == user_id,
+                   Accreditation.skill == skill
+                   )
+            .limit(1)
+        ).first()
+        if acc_id is None:
+            raise ValueError("Accreditation not found")
+
+        attempts = session.scalars(
+            select(Attempt)
+            .where(Attempt.user_id == user_id,
+                   Attempt.accreditation_id == acc_id)
+        ).all()
+        if not attempts:
+            raise ValueError("Attempts not found")
+
+        sum_rating = 0
+        for attempt in attempts:
+            if attempt.score is not None:
+                if (datetime.now(timezone.utc) - attempt.started_at).total_seconds() > 2592000: #2 592 000 - месяц
+                    sum_rating += attempt.score/2
+                else:
+                    sum_rating += attempt.score
+        rating = round(sum_rating/len(attempts))
+        session.execute(
+            update(Accreditation)
+            .where(Accreditation.user_id == user_id,
+                   Accreditation.skill == skill)
+            .values(rating = rating)
+        )
+        session.commit()
+    return rating
+
+
+        

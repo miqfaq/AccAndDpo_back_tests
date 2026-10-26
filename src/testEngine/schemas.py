@@ -49,6 +49,22 @@ class QuestionShcema(BaseModel):
     skill: KeyByCompetencies
     ability: KeyBySkill
 
+class TestAnswerSchema(BaseModel):
+    answer_text: str
+    answer_id: uuid.UUID
+
+class TestQuestionShcema(BaseModel):
+    question_text: str
+    answer_list: list[TestAnswerSchema]
+    question_id: uuid.UUID
+    difficulty: int = Field(default=1)
+    direction: str
+    skill: str
+    ability: str
+
+class TestShcema(BaseModel):
+    questions: list[TestQuestionShcema]
+
 class AnswerPublicShcema(BaseModel):
     answer_text: str
     answer_id: uuid.UUID

@@ -1,4 +1,4 @@
-from src.testEngine.schemas import Direction
+from src.testEngine.schemas import Direction, TestShcema, TestQuestionShcema, TestAnswerSchema
 from src.testEngine.models import Question, Attempt, AttemptQuestion
 
 import math
@@ -114,15 +114,24 @@ class BaseTest(ABC):
 
     def pick_questions(
         self, quotas: dict[int, int], seen_ids: set[uuid.UUID]
-    ) -> list[Question]:
+    ) -> list[TestQuestionShcema]:
         total = sum(quotas.values())
-        chosen: list[Question] = []
+        chosen: list[TestQuestionShcema] = []
         chosen_ids: set[uuid.UUID] = set()
 
         def take(difficulty: int, limit: int, exclude: set[uuid.UUID]) -> None:
-            for q in self._fetch(difficulty, limit, exclude | chosen_ids):
-                chosen.append(q)
-                chosen_ids.add(q.question_id)
+            for question_raw in self._fetch(difficulty, limit, exclude | chosen_ids):
+                answer_list = [TestAnswerSchema(answer_text=answer.answer_text, answer_id=answer.answer_id) for answer in question_raw.answers]
+                chosen.append(TestQuestionShcema(
+                    question_text=question_raw.question_text,
+                    answer_list=answer_list,
+                    question_id=question_raw.question_id,
+                    difficulty=question_raw.difficulty,
+                    direction=question_raw.direction,
+                    skill=question_raw.skill,
+                    ability=question_raw.ability
+                ))
+                chosen_ids.add(question_raw.question_id)
 
         # Этап 1: по квотам, только новые вопросы
         for difficulty, n in quotas.items():
@@ -143,7 +152,7 @@ class BaseTest(ABC):
         random.shuffle(chosen)
         return chosen
 
-    def build(self) -> list[Question]:
+    def build(self) -> list[TestQuestionShcema]:
         quotas = self.to_quotas(self.difficulty_weights(), self.NUMBER_OF_QUESTIONS)
         return self.pick_questions(quotas, self.get_seen_question_ids())
 

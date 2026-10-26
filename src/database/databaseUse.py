@@ -7,7 +7,7 @@ from src.security.security import settings
 # Create the database engine
 engine = create_engine(
     url=settings.DATABASE_URL,
-    echo=True, # Set to False in production
+    echo=False, # Set to False in production
     pool_pre_ping=True,
     pool_size=20,
     max_overflow=40,
