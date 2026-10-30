@@ -2,13 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException
 from src.security.security import security, TokenPayload
 from src.profile.schemas import UserDataOut, AccreditationInput
 from src.profile.models import UserData
-from src.profile.databaseWork import get_user_data, update_user_data, delete_user_data, find_user_uid, add_accreditation
+from src.profile.databaseWork import get_user_data, update_user_data, delete_user_data, find_user_uid, add_accreditation, get_accreditations
 import json
 
 
 router = APIRouter(
-    prefix="/user",
-    tags=["user"],
+    prefix="/profile",
+    tags=["profile"],
     dependencies=[Depends(security.access_token_required)]
 )
 
@@ -43,3 +43,21 @@ def get_acc_type_from_cache():
     with open("local_cache.json", 'r', encoding='utf-8') as file:
         js = json.load(file)
         return js["competencies"]
+
+
+
+@router.get("/{user_id}/latest")
+def post_contract(user_id):
+    userinfo = get_user_data(uid=user_id)
+    if userinfo is None:
+        raise HTTPException(status_code=204, detail='No content')
+    accreditations_list = get_accreditations(user_id=user_id)
+    contract = {
+        "userId": "...",
+        "fullName": f"{userinfo.lastName} {userinfo.firstName} {userinfo.midName}",
+        "department": f"{userinfo.department}",
+        "position": f"{userinfo.position}",
+        "area": f"{userinfo.area}", 
+        "targetRole": f"{userinfo.target_role}",
+        "competencies": accreditations_list
+    }

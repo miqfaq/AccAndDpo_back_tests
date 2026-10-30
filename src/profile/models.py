@@ -14,6 +14,10 @@ class UserData(Base):
     firstName: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
     lastName: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
     midName: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
+    department: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    position: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
+    area: Mapped[Optional[str]] = mapped_column(String(30), nullable=True)
+    target_role: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
     photo: Mapped[Optional[bytes]] = deferred(mapped_column(LargeBinary, nullable=True))
     accreditations: Mapped[list["Accreditation"]] = relationship(
         back_populates="user",

@@ -86,3 +86,11 @@ def add_accreditation(accreditation_input:AccreditationInput, uid:str):
         session.add(accreditation)
         session.commit()
 
+def get_accreditations(user_id):
+    with session_factory() as session:
+        acclist = session.scalars(
+            select(Accreditation)
+            .where(Accreditation.user_id == user_id)
+        ).all()
+        return acclist
+
