@@ -10,21 +10,22 @@ def get_user_data(uid):
         user = session.scalars(stmt).one_or_none()
         return user
 
-def update_user_data(userjson):
-    valid_data = UserDataOut.model_validate(userjson)
+def update_user_data(userjson, user_id):
+    
     with session_factory() as session:
-        uid = valid_data.uid
         stmt = (
             update(UserData)
-            .where(UserData.uid == uid)
+            .where(UserData.uid == user_id)
             .values(
-                username = valid_data.username,
-                firstName = valid_data.firstName,
-                lastName = valid_data.lastName,
-                midName = valid_data.midName,
-                completedTests = valid_data.completedTests,
-                totalTests = valid_data.totalTests,
-                abc_test_result = valid_data.abc_test_result
+                username = userjson.username,
+                firstName = userjson.firstName,
+                lastName = userjson.lastName,
+                midName = userjson.midName,
+                department = userjson.department,
+                photo = userjson.photo,
+                position = userjson.position,
+                area = userjson.area,
+                target_role = userjson.target_role
             )
         )
         session.execute(stmt)

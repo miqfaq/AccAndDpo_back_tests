@@ -1,14 +1,10 @@
 from src.security.security import config, security
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 import hashlib, bcrypt, hmac
 from src.authorisation.common import get_user_password, get_uid, get_user_role, add_user_role
 import jwt
 from fastapi import Depends, HTTPException, status
 from authx import TokenPayload
-
-
-
-
 
 cookie = config.JWT_ACCESS_COOKIE_NAME
 
@@ -16,7 +12,7 @@ def verify_password(password: str, stored: str) -> bool:
     return bcrypt.checkpw(password.encode("utf-8"), stored.encode("utf-8"))
 
 class UserLoginSchema(BaseModel):
-    username: str
+    login: EmailStr
     password: str
 
 def is_verified(login: str, password: str):

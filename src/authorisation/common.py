@@ -10,18 +10,18 @@ def insert_user_reg_data(username: str, hash_password:str):
 
 def get_user_reg_login():
     with session_factory() as session:
-        login = session.query(UserAuthData.username).all()
+        login = session.query(UserAuthData.login).all()
         return login
 
 def get_user_password(login: str):
     with session_factory() as session:
-        stmt = select(UserAuthData.hash_password).where(UserAuthData.username == login)
+        stmt = select(UserAuthData.hash_password).where(UserAuthData.login == login)
         hash_pwd = session.scalar(stmt)
         return hash_pwd
 
 def get_uid(login:str):
     with session_factory() as session:
-        stmt = select(UserAuthData.uid).where(UserAuthData.username == login)
+        stmt = select(UserAuthData.uid).where(UserAuthData.login == login)
         uid = session.scalar(stmt)
         return uid
 

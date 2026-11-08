@@ -13,10 +13,10 @@ router = APIRouter(
 
 @router.post('/login')
 def login(creds: UserLoginSchema, response: Response):
-    if not is_verified(login=creds.username, password=creds.password):
+    if not is_verified(login=creds.login, password=creds.password):
         raise HTTPException(status_code=401, detail="Incorrect login or password")
 
-    token = get_token(creds.username)
+    token = get_token(creds.login)
     security.set_access_cookies(token, response)
     return {"access_token": token}
 

@@ -10,7 +10,7 @@ class UserData(Base):
         ForeignKey("user_auth.uid", ondelete="CASCADE"), 
         primary_key=True,
     )
-    username: Mapped[str] = mapped_column(String(20), unique=True)
+    login: Mapped[str] = mapped_column(String(20), unique=True)
     firstName: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
     lastName: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
     midName: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)

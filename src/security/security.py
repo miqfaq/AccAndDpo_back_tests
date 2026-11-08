@@ -8,7 +8,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     JWT_SECRET_KEY: str
     DATABASE_URL: str
-    DEEPSEEK_API_KEY: str
+    GIGACHAT_API_KEY: str
 
     model_config = SettingsConfigDict(
         env_file=".env",       

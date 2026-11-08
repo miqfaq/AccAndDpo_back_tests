@@ -7,7 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 class UserAuthData(Base):
     __tablename__ = 'user_auth'
     uid: Mapped[uuid.UUID] = mapped_column(primary_key=True)
-    username: Mapped[str] = mapped_column()
+    login: Mapped[str] = mapped_column()
     hash_password: Mapped[str] = mapped_column()
     role: Mapped[str] = mapped_column( default='user')
 
@@ -16,3 +16,4 @@ class UserRole():
     user = 'user'
     guest = 'guest'
     manager = 'manager'
+    dpo = 'dpo'

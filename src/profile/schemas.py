@@ -1,6 +1,7 @@
 from pydantic import Field, BaseModel, ConfigDict, BeforeValidator, WithJsonSchema
 from typing import Annotated
 import json
+import uuid
 
 
 
@@ -8,16 +9,24 @@ import json
 CONFIG_PATH = "local_cache.json"
 
 class UserDataOut(BaseModel):
-    uid: str
-    username: str
     firstName: str
     lastName: str
     midName: str
-    completedTests: int = Field( )
-    totalTests: int
-    abc_test_result: int
-
+    department: str
+    position: str
+    area: str
+    target_role: str
+    photo: bytes
     model_config = ConfigDict(from_attributes=True)
+
+class UserContract(BaseModel):
+    userId: uuid.UUID
+    fullName: str
+    department: str
+    position: str
+    area: str
+    targetRole: str
+    competencies: str
 
 def _load_levels() -> dict[str, int]:
     with open(CONFIG_PATH, encoding="utf-8") as f:
