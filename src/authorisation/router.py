@@ -27,7 +27,3 @@ async def register(creds: UserRegisterSchema):
     else:
         raise HTTPException(status_code=409, detail="Conflict")
 
-
-@router.post('/addRole')
-async def add_role (uid, role, payload: TokenPayload = Depends(require_role('admin'))):
-    await add_userRole(uid, role)
