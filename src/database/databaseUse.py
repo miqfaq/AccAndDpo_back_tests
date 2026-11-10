@@ -1,11 +1,12 @@
 from sqlmodel import create_engine, Session, text
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from src.security.security import settings
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
 
 
 # Create the database engine
-engine = create_engine(
+engine = create_async_engine(
     url=settings.DATABASE_URL,
     echo=False, # Set to False in production
     pool_pre_ping=True,
@@ -14,7 +15,7 @@ engine = create_engine(
     pool_timeout=30,
 )
 
-session_factory = sessionmaker(engine)
+session_factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 class Base(DeclarativeBase):
     pass

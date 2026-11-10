@@ -6,6 +6,7 @@ import uuid
 import random
 from abc import ABC, abstractmethod
 from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 
 
@@ -36,7 +37,7 @@ class BaseTest(ABC):
 
     def __init__(
         self,
-        session: Session,
+        session: AsyncSession,
         user_id: uuid.UUID | None,
         direction: str,
         skill: str,
@@ -56,7 +57,7 @@ class BaseTest(ABC):
 
     # ---------- общая логика ----------
 
-    def _weights_from_mix(self, mix: float) -> dict[int, float]:
+    async def _weights_from_mix(self, mix: float) -> dict[int, float]:
         """mix (0..100) -> центр на шкале сложности -> колокол весов."""
         mix = min(max(mix, 0), 100)
         center = 1 + (mix / 100) * (self.LEVELS - 1)
@@ -68,7 +69,7 @@ class BaseTest(ABC):
         return {d: w / total for d, w in raw.items()}
 
     @staticmethod
-    def to_quotas(weights: dict[int, float], total: int) -> dict[int, int]:
+    async def to_quotas(weights: dict[int, float], total: int) -> dict[int, int]:
         """Доли -> целые количества вопросов, сумма равна ровно total."""
         raw = {d: w * total for d, w in weights.items()}
         quotas = {d: int(v) for d, v in raw.items()}
@@ -78,7 +79,7 @@ class BaseTest(ABC):
             quotas[d] += 1
         return quotas
 
-    def get_seen_question_ids(self) -> set[uuid.UUID]:
+    async def get_seen_question_ids(self) -> set[uuid.UUID]:
         if self.user_id is None:
             return set()
         stmt = (
@@ -90,9 +91,10 @@ class BaseTest(ABC):
             )
             .distinct()
         )
-        return {qid for qid in self.session.scalars(stmt) if qid is not None}
+        res = await self.session.execute(stmt)
+        return {qid for qid in res.scalars() if qid is not None}
 
-    def _fetch(
+    async def _fetch(
         self, difficulty: int, limit: int, exclude_ids: set[uuid.UUID]
     ) -> list[Question]:
         """До `limit` случайных вопросов одной сложности, кроме exclude_ids."""
@@ -110,17 +112,18 @@ class BaseTest(ABC):
         if exclude_ids:
             stmt = stmt.where(Question.question_id.not_in(list(exclude_ids)))
         stmt = stmt.order_by(func.random()).limit(limit)
-        return list(self.session.scalars(stmt).all())
+        res = await self.session.execute(stmt)
+        return list(res.scalars().all())
 
-    def pick_questions(
+    async def pick_questions(
         self, quotas: dict[int, int], seen_ids: set[uuid.UUID]
     ) -> list[TestQuestionShcema]:
         total = sum(quotas.values())
         chosen: list[TestQuestionShcema] = []
         chosen_ids: set[uuid.UUID] = set()
 
-        def take(difficulty: int, limit: int, exclude: set[uuid.UUID]) -> None:
-            for question_raw in self._fetch(difficulty, limit, exclude | chosen_ids):
+        async def take(difficulty: int, limit: int, exclude: set[uuid.UUID]) -> None:
+            for question_raw in await self._fetch(difficulty, limit, exclude | chosen_ids):
                 answer_list = [TestAnswerSchema(answer_text=answer.answer_text, answer_id=answer.answer_id) for answer in question_raw.answers]
                 chosen.append(TestQuestionShcema(
                     question_text=question_raw.question_text,
@@ -135,7 +138,7 @@ class BaseTest(ABC):
 
         # Этап 1: по квотам, только новые вопросы
         for difficulty, n in quotas.items():
-            take(difficulty, n, seen_ids)
+            await take(difficulty, n, seen_ids)
 
         # Порядок добора: сначала сложности, ближайшие к центру теста
         center = sum(d * n for d, n in quotas.items()) / total if total else 0
@@ -143,18 +146,18 @@ class BaseTest(ABC):
 
         # Этап 2: добор недостающего, всё ещё только новые
         for difficulty in by_distance:
-            take(difficulty, total - len(chosen), seen_ids)
+            await take(difficulty, total - len(chosen), seen_ids)
 
         # Этап 3: если не хватило, разрешаем повторы
         for difficulty in by_distance:
-            take(difficulty, total - len(chosen), set())
+            await take(difficulty, total - len(chosen), set())
 
         random.shuffle(chosen)
         return chosen
 
-    def build(self) -> list[TestQuestionShcema]:
-        quotas = self.to_quotas(self.difficulty_weights(), self.NUMBER_OF_QUESTIONS)
-        return self.pick_questions(quotas, self.get_seen_question_ids())
+    async def build(self) -> list[TestQuestionShcema]:
+        quotas = await self.to_quotas(self.difficulty_weights(), self.NUMBER_OF_QUESTIONS)
+        return await self.pick_questions(quotas, await self.get_seen_question_ids())
 
 
 class FirstTest(BaseTest):
@@ -162,7 +165,7 @@ class FirstTest(BaseTest):
 
     def __init__(
         self,
-        session: Session,
+        session: AsyncSession,
         user_id: uuid.UUID | None,
         direction: str,
         skill: str,
@@ -172,18 +175,18 @@ class FirstTest(BaseTest):
         super().__init__(session, user_id, direction, skill, target)
         self.self_rating = self_rating
 
-    def difficulty_weights(self) -> dict[int, float]:
+    async def difficulty_weights(self) -> dict[int, float]:
         mix = self.TARGET_WEIGHT * self.target + self.SELF_WEIGHT * self.self_rating
-        return self._weights_from_mix(mix)
+        return await self._weights_from_mix(mix)
 
 class RepeatTest(BaseTest):
     def __init__(self, session, user_id, direction, skill, target, level: float):
         super().__init__(session, user_id, direction, skill, target)
         self.level = level
 
-    def difficulty_weights(self) -> dict[int, float]:
+    async def difficulty_weights(self) -> dict[int, float]:
         mix = self.TARGET_WEIGHT_2 * self.target + self.LEVEL_WEIGHT * self.level
-        return self._weights_from_mix(mix)
+        return await self._weights_from_mix(mix)
 
 
         

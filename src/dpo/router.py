@@ -46,11 +46,11 @@ router = APIRouter(prefix="/dpo", tags=["dpo"])
             }
         }
     })
-def get_contract(user_id):
-    userinfo = get_user_data(uid=user_id)
+async def get_contract(user_id):
+    userinfo = await get_user_data(uid=user_id)
     if userinfo is None:
         raise HTTPException(status_code=204, detail='No content')
-    accreditations_list = get_accreditations(user_id=user_id)
+    accreditations_list = await get_accreditations(user_id=user_id)
     contract = {
         "userId": f"{user_id}",
         "fullName": f"{userinfo.lastName} {userinfo.firstName} {userinfo.midName}",

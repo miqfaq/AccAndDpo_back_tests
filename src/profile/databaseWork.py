@@ -4,15 +4,16 @@ from src.authorisation.models import UserAuthData as UserAuthData
 from src.database.databaseUse import session_factory
 from sqlalchemy import select, update, delete
 
-def get_user_data(uid):
-    with session_factory() as session:
+async def get_user_data(uid):
+    async with session_factory() as session:
         stmt = select(UserData).where(UserData.uid == uid)
-        user = session.scalars(stmt).one_or_none()
+        res = await session.execute(stmt)
+        user = res.scalars().one_or_none()
         return user
 
-def update_user_data(userjson, user_id):
+async def update_user_data(userjson, user_id):
     
-    with session_factory() as session:
+    async with session_factory() as session:
         stmt = (
             update(UserData)
             .where(UserData.uid == user_id)
@@ -28,11 +29,11 @@ def update_user_data(userjson, user_id):
                 target_role = userjson.target_role
             )
         )
-        session.execute(stmt)
-        session.commit()
+        await session.execute(stmt)
+        await session.commit()
 
-def delete_user_data(uid: str):
-    with session_factory() as session:
+async def delete_user_data(uid: str):
+    async with session_factory() as session:
         stmt = (
             delete(UserData)
             .where(UserData.uid == uid)
@@ -45,25 +46,27 @@ def delete_user_data(uid: str):
             delete(Accreditation)
             .where(Accreditation.user_id == uid)
         )
-        session.execute(stmt)
-        session.execute(stmt2)
-        session.execute(stmt3)
-        session.commit()
+        await session.execute(stmt)
+        await session.execute(stmt2)
+        await session.execute(stmt3)
+        await session.commit()
 
-def find_user_uid(uid: str):
-    with session_factory() as session:
+async def find_user_uid(uid: str):
+    async with session_factory() as session:
         stmt = select(UserData).where(UserData.uid == uid)
         stmt2 = select(UserAuthData).where(UserAuthData.uid == uid)
-        userdatauid = session.scalars(stmt).one_or_none()
-        userauthuid = session.scalars(stmt2).one_or_none()
+        response1 = await session.execute(stmt)
+        response2 = await session.execute(stmt2)
+        userdatauid = response1.scalars().one_or_none()
+        userauthuid = response2.scalars().one_or_none()
         if (userauthuid is not None) and (userdatauid is not None):
             print(userauthuid, userdatauid)
             return userauthuid.uid == userdatauid.uid
         raise ValueError("userdatauid or userauthuid is none")
 
-def add_self_rating(user_id, self_rating, accreditation_id):
-    with session_factory() as session:
-        accreditation = session.scalar(
+async def add_self_rating(user_id, self_rating, accreditation_id):
+    async with session_factory() as session:
+        accreditation = await session.scalar(
             select(Accreditation)
             .where(Accreditation.user_id == user_id and Accreditation.uid == accreditation_id)
         )
@@ -71,12 +74,10 @@ def add_self_rating(user_id, self_rating, accreditation_id):
             raise ValueError("Accreditation not found")
         acc = accreditation.self_rating = self_rating
         session.add(acc)
-        session.commit()
-        ret = session.refresh(acc)
-        return ret
+        await session.commit()
 
-def add_accreditation(accreditation_input:AccreditationInput, uid:str):
-    with session_factory() as session:
+async def add_accreditation(accreditation_input:AccreditationInput, uid:str):
+    async with session_factory() as session:
         accreditation = Accreditation(
             user_id = uid,
             direction = accreditation_input.direction,
@@ -85,13 +86,14 @@ def add_accreditation(accreditation_input:AccreditationInput, uid:str):
             self_rating = accreditation_input.self_rating
             )
         session.add(accreditation)
-        session.commit()
+        await session.commit()
 
-def get_accreditations(user_id):
-    with session_factory() as session:
-        acclist = session.scalars(
+async def get_accreditations(user_id):
+    async with session_factory() as session:
+        stmt = (
             select(Accreditation)
             .where(Accreditation.user_id == user_id)
-        ).all()
-        return acclist
+        )
+        res = await session.execute(stmt)
+        return res.scalars().all()
 

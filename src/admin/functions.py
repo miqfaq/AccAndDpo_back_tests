@@ -6,19 +6,19 @@ from sqlalchemy import update
 from src.authorisation.models import UserAuthData
 
 def require_role(*allowed: str):
-    def checker(payload: TokenPayload = Depends(security.access_token_required)):
+    async def checker(payload: TokenPayload = Depends(security.access_token_required)):
         role = getattr(payload, "role", None)
         if role not in allowed:
             raise HTTPException(status.HTTP_403_FORBIDDEN, "Forbidden")
         return payload
     return checker
 
-def add_user_role(uid: str, role: str):
-    with session_factory() as session:
+async def add_user_role(uid: str, role: str):
+    async with session_factory() as session:
         stmt = (update(UserAuthData)
                 .where(UserAuthData.uid == uid)
                 .values(
                     role = role
                 ))
-        session.execute(stmt)
-        session.commit()
+        await session.execute(stmt)
+        await session.commit()

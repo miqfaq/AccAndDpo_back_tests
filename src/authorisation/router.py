@@ -12,22 +12,22 @@ router = APIRouter(
 )
 
 @router.post('/login')
-def login(creds: UserLoginSchema, response: Response):
-    if not is_verified(login=creds.login, password=creds.password):
+async def login(creds: UserLoginSchema, response: Response):
+    if not await is_verified(login=creds.login, password=creds.password):
         raise HTTPException(status_code=401, detail="Incorrect login or password")
 
-    token = get_token(creds.login)
-    security.set_access_cookies(token, response)
+    token = await get_token(creds.login)
+    security.set_access_cookies(token, response, max_age=99999)
     return {"access_token": token}
 
 @router.post('/register', status_code=201)
-def register(creds: UserRegisterSchema):
-    if register_user(creds.login, creds.password):
+async def register(creds: UserRegisterSchema):
+    if await register_user(creds.login, creds.password):
         return "Sucess!"
     else:
         raise HTTPException(status_code=409, detail="Conflict")
 
 
 @router.post('/addRole')
-def add_role (uid, role, payload: TokenPayload = Depends(require_role('admin'))):
-    add_userRole(uid, role)
+async def add_role (uid, role, payload: TokenPayload = Depends(require_role('admin'))):
+    await add_userRole(uid, role)

@@ -38,36 +38,36 @@ router = APIRouter(
             }
         }
     )
-def getUserInfo(payload: TokenPayload = Depends(security.access_token_required)): 
+async def getUserInfo(payload: TokenPayload = Depends(security.access_token_required)): 
     uid = payload.sub
-    if not find_user_uid(uid):
+    if not await find_user_uid(uid):
         raise HTTPException(status_code=204, detail='No content')
-    return get_user_data(uid)
+    return await get_user_data(uid)
     
 @router.patch("/updateUser")
-def update_user(userjson: UserDataOut, payload: TokenPayload = Depends(security.access_token_required)):
+async def update_user(userjson: UserDataOut, payload: TokenPayload = Depends(security.access_token_required)):
     uid = payload.sub
-    if not find_user_uid(uid):
+    if not await find_user_uid(uid):
         raise HTTPException(status_code=204, detail='No content')
-    update_user_data(userjson, uid)
+    await update_user_data(userjson, uid)
 
 @router.delete('/deleteUser')
-def delete_user(payload: TokenPayload = Depends(security.access_token_required)):
+async def delete_user(payload: TokenPayload = Depends(security.access_token_required)):
     uid = payload.sub
-    if not find_user_uid(uid):
+    if not await find_user_uid(uid):
         raise HTTPException(status_code=204, detail='No content')
-    delete_user_data(uid)
+    await delete_user_data(uid)
 
 @router.post("/addAcc")
-def add_accreditation_to_profile(acc: AccreditationInput, payload: TokenPayload = Depends(security.access_token_required)):
+async def add_accreditation_to_profile(acc: AccreditationInput, payload: TokenPayload = Depends(security.access_token_required)):
     uid = payload.sub
-    if not find_user_uid(uid):
+    if not await find_user_uid(uid):
         raise HTTPException(status_code=204, detail='No content')
-    add_accreditation(acc, uid)
+    await add_accreditation(acc, uid)
     return "sucess"
 
 @router.get('/getAccType')
-def get_acc_type_from_cache():
+async def get_acc_type_from_cache():
     with open("local_cache.json", 'r', encoding='utf-8') as file:
         js = json.load(file)
         return js["competencies"]

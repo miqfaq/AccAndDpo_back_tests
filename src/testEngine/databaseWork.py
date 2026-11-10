@@ -9,47 +9,46 @@ from datetime import datetime, timezone
 import uuid
 
 
-def get_direction(acc_id, user_id) -> str:
-    with session_factory() as session:
+async def get_direction(acc_id, user_id) -> str:
+    async with session_factory() as session:
         stmt = (
             select(Accreditation.direction)
             .where(Accreditation.user_id == user_id and Accreditation.uid == acc_id)
         )
-        direction = session.scalars(stmt).one_or_none()
+        res = await session.execute(stmt)
+        direction = res.scalars().one_or_none()
         if direction is None:
             raise ValueError("Accreditation not found")
         return direction
 
-def get_questions_by_direction(direction: Direction) -> list[Question]:
+async def get_questions_by_direction(direction: Direction) -> list[Question]:
     direction = Direction(direction)
-    with session_factory() as session:
+    async with session_factory() as session:
         stmt = (
             select(Question)
             .where(Question.direction == direction)
         )
-        questions = list(session.scalars(stmt).all())
+        res = await session.execute(stmt)
+        questions = list(res.scalars().all())
         if questions is None:
             raise ValueError("Questions not found")
         return questions
 
-def getTest(userId: uuid.UUID, acc_id: uuid.UUID):
-    with session_factory() as session:
-        type_test = session.scalars(select(Attempt).where(Attempt.user_id == userId, Attempt.accreditation_id == acc_id) )
-
-        target = session.scalars(select(Accreditation.target).where(Accreditation.user_id == userId, Accreditation.uid == acc_id)).one()
-        skill = session.scalars(select(Accreditation.skill).where(Accreditation.user_id == userId, Accreditation.uid == acc_id)).one()
-        direction = session.scalars(select(Accreditation.direction).where(Accreditation.user_id == userId, Accreditation.uid == acc_id)).one()
-        if type_test is not None:
-            level = session.scalars(select(Accreditation.rating).where(Accreditation.user_id == userId, Accreditation.uid == acc_id)).one()
-            test = RepeatTest(session=session, user_id=userId, direction=direction, skill=skill, target=target, level=level)
-        else:
-            self_rating = session.scalars(select(Accreditation.self_rating).where(Accreditation.user_id == userId, Accreditation.uid == acc_id)).one()
-            test = FirstTest(session=session, user_id=userId, direction=direction, skill=skill, target=target, self_rating=self_rating)
+async def getTest(userId: uuid.UUID, acc_id: uuid.UUID):
+    async with session_factory() as session:
+        type_test = session.scalars(select(Attempt).where(Attempt.user_id == userId, Attempt.accreditation_id == acc_id))
+        resAcc = await session.execute(select(Accreditation).where(Accreditation.user_id == userId, Accreditation.uid == acc_id))
+        acc = resAcc.scalar()
+        if acc is not None:
+            if type_test is not None:
+                test = RepeatTest(session=session, user_id=userId, direction=acc.direction, skill=acc.skill, target=acc.target, level=acc.rating)
+            else:
+                test = FirstTest(session=session, user_id=userId, direction=acc.direction, skill=acc.skill, target=acc.target, self_rating=acc.self_rating)
 
         return test.build()
 
-def addQuestion(question: QuestionShcema):
-    with session_factory() as session:
+async def addQuestion(question: QuestionShcema):
+    async with session_factory() as session:
         session.add(Question(
             question_text = question.question_text,
             difficulty = question.difficulty,
@@ -61,11 +60,12 @@ def addQuestion(question: QuestionShcema):
                 for answer in question.answer_list
             ],
         ))
-        session.commit()
+        await session.commit()
 
-def getAccList_uid(uid:uuid.UUID) -> list[Accreditation]:
-    with session_factory() as session:
-        accList = session.scalars(select(Accreditation).where(Accreditation.user_id == uid)).all()
+async def getAccList_uid(uid:uuid.UUID) -> list[Accreditation]:
+    async with session_factory() as session:
+        resAccList = await session.execute(select(Accreditation).where(Accreditation.user_id == uid))
+        accList = resAccList.scalars().all()
         return accList # pyright: ignore[reportReturnType]
 
 
@@ -75,7 +75,7 @@ class AttemptError(Exception):
         self.status_code = status_code
         self.detail = detail
 
-def save_attempt(
+async def save_attempt(
     attempt: AttemptSchema,
     user_id: uuid.UUID,
     accreditation_id: uuid.UUID | None = None,
@@ -99,14 +99,14 @@ def save_attempt(
     question_ids = [q.question_id for q in questions]
     answer_ids = [a.answer_id for q in questions for a in q.answers]
 
-    with session_factory() as session:
+    async with session_factory() as session:
         if session.get(Attempt, attempt_uuid) is not None:
             raise AttemptError(409, "Эта попытка уже сохранена")
 
         # Сложность берём из банка, а не от клиента
         difficulty: dict[uuid.UUID, int] = {
             qid: diff
-            for qid, diff in session.execute(
+            for qid, diff in await session.execute(
             select(Question.question_id, Question.difficulty)
             .where(Question.question_id.in_(question_ids))
             )
@@ -117,7 +117,7 @@ def save_attempt(
         # Правильность вариантов тоже берём из банка
         truth = {
             row.answer_id: row
-            for row in session.execute(
+            for row in await session.execute(
                 select(Answer.answer_id, Answer.question_id, Answer.is_true)
                 .where(Answer.answer_id.in_(answer_ids))
             )
@@ -164,70 +164,70 @@ def save_attempt(
             )
         )
         try:
-            session.commit()
+            await session.commit()
         except IntegrityError as exc:
-            session.rollback()
             raise AttemptError(
                 409, f"Не удалось сохранить попытку: {exc.orig}"
             )
 
     return attempt_uuid
 
-def score_count(user_id, acc_id):
-    with session_factory() as session:
-        attempt_id = session.scalars(
-            select(Attempt.attempt_id)
-            .where(Attempt.user_id == user_id,
-                   Attempt.accreditation_id == acc_id,
-                   Attempt.score == None)
-            .limit(1)
-        ).first()
+async def score_count(user_id, acc_id):
+    async with session_factory() as session:
+        att_id_res = await session.execute(select(Attempt.attempt_id)
+                    .where(Attempt.user_id == user_id,
+                           Attempt.accreditation_id == acc_id,
+                           Attempt.score == None)
+                    .limit(1))
+        attempt_id = att_id_res.scalars().first()
         if attempt_id is None:
             raise ValueError("attempt not found")
 
-        questions = session.scalars(
+        que_res = await session.execute(
             select(AttemptQuestion)
-            .where(AttemptQuestion.attempt_id == attempt_id)
-        ).all()
+            .where(AttemptQuestion.attempt_id == attempt_id))
+        questions = que_res.scalars().all()
 
-        # id вопросов, на которые дан правильный ответ
-        correct_ids = set(session.scalars(
+        corr_id_res = await session.execute(
             select(AttemptAnswer.attempt_question_id)
             .where(AttemptAnswer.attempt_id == attempt_id,
                    AttemptAnswer.is_selected == True,
-                   AttemptAnswer.is_true == True)
-        ).all())
+                   AttemptAnswer.is_true == True))
+        # id вопросов, на которые дан правильный ответ
+        correct_ids = set(corr_id_res.scalars().all())
 
         weights_sum = sum(q.difficulty for q in questions if q.id in correct_ids)
         all_weights_sum = sum(q.difficulty for q in questions)
 
         score = round(100 * weights_sum / all_weights_sum, 2) if all_weights_sum else 0
-        session.execute(
+        await session.execute(
             update(Attempt)
             .where(Attempt.attempt_id == attempt_id)
             .values(score=score)
         )
-        session.commit()
+        await session.commit()
     return score
 
-def rating_count(user_id, skill):
-    with session_factory() as session:
+async def rating_count(user_id, skill):
+    async with session_factory() as session:
         print(skill)
-        acc_id = session.scalars(
+        acc_id_res = await session.execute(
             select(Accreditation.uid)
             .where(Accreditation.user_id == user_id,
                    Accreditation.skill == skill
                    )
-            .limit(1)
-        ).first()
+            .limit(1))
+        acc_id = acc_id_res.scalars().first()
         if acc_id is None:
             raise ValueError("Accreditation not found")
 
-        attempts = session.scalars(
+        att_res = await session.execute(
             select(Attempt)
             .where(Attempt.user_id == user_id,
-                   Attempt.accreditation_id == acc_id)
-        ).all()
+                    Attempt.accreditation_id == acc_id)
+        )
+        
+        attempts = att_res.scalars().all()
         if not attempts:
             raise ValueError("Attempts not found")
 
@@ -239,13 +239,13 @@ def rating_count(user_id, skill):
                 else:
                     sum_rating += attempt.score
         rating = round(sum_rating/len(attempts))
-        session.execute(
+        await session.execute(
             update(Accreditation)
             .where(Accreditation.user_id == user_id,
                    Accreditation.skill == skill)
             .values(rating = rating)
         )
-        session.commit()
+        await session.commit()
     return rating
 
 

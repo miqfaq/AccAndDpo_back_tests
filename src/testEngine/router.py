@@ -11,27 +11,27 @@ router = APIRouter(
 )
 
 @router.get("/accreditation_get_direction")
-def accreditation_get_direction(acc_id:str, payload: TokenPayload = Depends(security.access_token_required)):
-    direction = get_direction(acc_id=acc_id, user_id=payload.sub)
+async def accreditation_get_direction(acc_id:str, payload: TokenPayload = Depends(security.access_token_required)):
+    direction = await get_direction(acc_id=acc_id, user_id=payload.sub)
     return direction
 
 @router.get("/test_generatre")
-def get_test(accId, payload: TokenPayload = Depends(security.access_token_required)):
-    return getTest(userId=uuid.UUID(payload.sub), acc_id=accId)
+async def get_test(accId, payload: TokenPayload = Depends(security.access_token_required)):
+    return await getTest(userId=uuid.UUID(payload.sub), acc_id=accId)
 
 @router.post("/addQuestion")
-def add_question(question_list: list[QuestionShcema], payload: TokenPayload=Depends(require_role("manager", "admin"))):
+async def add_question(question_list: list[QuestionShcema], payload: TokenPayload=Depends(require_role("manager", "admin"))):
     for question in question_list:
-        addQuestion(question=question)
+        await addQuestion(question=question)
 
 @router.get("/getAcclist")
-def get_acc_list(payload: TokenPayload = Depends(security.access_token_required)):
-    return getAccList_uid(uid=uuid.UUID(payload.sub))
+async def get_acc_list(payload: TokenPayload = Depends(security.access_token_required)):
+    return await getAccList_uid(uid=uuid.UUID(payload.sub))
 
 @router.post("/submitattempt")
-def submitAttempt(attempt: AttemptSchema, accreditation_id, payload: TokenPayload = Depends(security.access_token_required)):
-    save_attempt(attempt=attempt, user_id=uuid.UUID(payload.sub), accreditation_id=accreditation_id)
-    score_count(user_id=uuid.UUID(payload.sub), acc_id=accreditation_id)
+async def submitAttempt(attempt: AttemptSchema, accreditation_id, payload: TokenPayload = Depends(security.access_token_required)):
+    await save_attempt(attempt=attempt, user_id=uuid.UUID(payload.sub), accreditation_id=accreditation_id)
+    await score_count(user_id=uuid.UUID(payload.sub), acc_id=accreditation_id)
     print(f'SKILL{attempt.skill}')
-    rating_count(user_id=uuid.UUID(payload.sub), skill=attempt.skill)
+    await rating_count(user_id=uuid.UUID(payload.sub), skill=attempt.skill)
     

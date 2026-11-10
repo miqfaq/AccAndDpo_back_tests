@@ -8,5 +8,5 @@ from src.admin.functions import require_role, add_user_role
 router = APIRouter(prefix="/admin", tags=['admin'])
 
 @router.post('/addRole')
-def add_role (uid, role, payload: TokenPayload = Depends(require_role('admin'))):
-    add_user_role(uid, role)
+async def add_role (uid, role, payload: TokenPayload = Depends(require_role('admin'))):
+    await add_user_role(uid, role)

@@ -5,14 +5,15 @@ from src.profile.models import Accreditation
 
 
 
-def get_acc_context(acc_id):
-    with session_factory() as session:
+async def get_acc_context(acc_id):
+    async with session_factory() as session:
         stmt = (select(Accreditation)
                 .where(Accreditation.uid == acc_id))
-        return session.scalars(stmt).all()
+        res = await session.execute(stmt)
+        return res.scalars().all()
 
-def get_att_context(att_id) -> list[AttemptAnswer]: 
-    with session_factory() as session:
+async def get_att_context(att_id) -> list[AttemptAnswer]: 
+    async with session_factory() as session:
         statement = (
             select(AttemptAnswer)
             .join(AttemptQuestion, AttemptAnswer.attempt_question_id == AttemptQuestion.id)
@@ -20,4 +21,5 @@ def get_att_context(att_id) -> list[AttemptAnswer]:
         )
         
         # .scalars().all() вернет плоский список [AttemptAnswer, AttemptAnswer, ...]
-        return list(session.scalars(statement).all())
+        res = await session.execute(statement)
+        return list(res.scalars().all())
